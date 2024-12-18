@@ -1,0 +1,4 @@
+order:
+  path: /order/
+  controller: App\Controller\OrderController::index
+

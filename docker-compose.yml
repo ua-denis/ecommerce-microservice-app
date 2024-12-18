@@ -1,0 +1,115 @@
+version: "3.9"
+
+networks:
+  app_network:
+    driver: bridge
+
+services:
+  product-postgres:
+    image: postgres:16
+    container_name: product-postgres
+    environment:
+      POSTGRES_USER: product_user
+      POSTGRES_PASSWORD: product_password
+      POSTGRES_DB: product_db
+    networks:
+      - app_network
+    volumes:
+      - product_postgres_data:/var/lib/postgresql/data
+
+  order-postgres:
+    image: postgres:16
+    container_name: order-postgres
+    environment:
+      POSTGRES_USER: order_user
+      POSTGRES_PASSWORD: order_password
+      POSTGRES_DB: order_db
+    networks:
+      - app_network
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app_network
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    depends_on:
+      - product-postgres
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgresql://product_user:product_password@product-postgres:5432/product_db?serverVersion=16&charset=utf8
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    volumes:
+      - ./product-service:/var/www
+    dns:
+      - 8.8.8.8
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -vz localhost 9001 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - app_network
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    depends_on:
+      - order-postgres
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgresql://order_user:order_password@order-postgres:5432/order_db?serverVersion=16&charset=utf8
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    volumes:
+      - ./order-service:/var/www
+    dns:
+      - 8.8.8.8
+    networks:
+      - app_network
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -vz localhost 9001 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - "80:80"
+    networks:
+      - app_network
+    depends_on:
+      - product-service
+      - order-service
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+volumes:
+  product_postgres_data:
+  order_postgres_data:
+  rabbitmq_data:

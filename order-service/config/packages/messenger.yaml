@@ -1,0 +1,18 @@
+framework:
+  messenger:
+    buses:
+      # Default bus for sending messages
+      default:
+        default_middleware: true
+
+    routing:
+      'App\Domain\Event\OrderCreated': async
+      'App\Domain\Event\OrderStatusUpdated': async
+
+    # Transport configuration
+    transports:
+      async: '%env(MESSENGER_TRANSPORT_DSN)%'
+
+    # Middleware configuration
+    middleware:
+      - 'messenger.middleware.some_custom_middleware'
