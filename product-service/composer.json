@@ -1,9 +1,9 @@
 {
   "type": "project",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=8.2",
+    "php": "^8.2",
     "ext-ctype": "*",
     "ext-iconv": "*",
     "doctrine/dbal": "^3",
@@ -18,8 +18,15 @@
     "symfony/messenger": "6.4.*",
     "symfony/monolog-bundle": "^3.10",
     "symfony/runtime": "6.4.*",
-    "symfony/yaml": "6.4.*"
+    "symfony/yaml": "6.4.*",
+    "app/shared": "*"
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "shared"
+    }
+  ],
   "config": {
     "allow-plugins": {
       "php-http/discovery": true,

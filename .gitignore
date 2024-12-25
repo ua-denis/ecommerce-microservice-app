@@ -11,4 +11,6 @@
 /.idea
 /.vscode
 /.zed
+/order-service/logs/*
+/product-service/logs/*
 ###< symfony/framework-bundle ###

@@ -6,16 +6,16 @@ framework:
         default_middleware: true
 
     routing:
-      'App\Domain\Event\OrderCreated': async
-      'App\Domain\Event\OrderStatusUpdated': async
+      'App\Domain\Event\ProductCreated': async
+      'App\Domain\Event\StockUpdated': async
 
     # Transport configuration
     transports:
       async: '%env(MESSENGER_TRANSPORT_DSN)%'
 
     # Middleware configuration
-    middleware:
-      - 'messenger.middleware.some_custom_middleware'
+    #middleware:
+    #  - 'messenger.middleware.some_custom_middleware'
 
 # when@test:
 #    framework:

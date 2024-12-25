@@ -14,5 +14,5 @@ framework:
       async: '%env(MESSENGER_TRANSPORT_DSN)%'
 
     # Middleware configuration
-    middleware:
-      - 'messenger.middleware.some_custom_middleware'
+    #middleware:
+    #  - 'messenger.middleware.some_custom_middleware'
